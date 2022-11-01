@@ -38,7 +38,9 @@ public class PersonService {
     private Long getMaxId(){
         TypedQuery<Long> query = entityManager.createQuery("select max(p.id) from Person p", Long.class);
         
-        return query.getSingleResult();
+        Long maxId = query.getSingleResult();
+	
+	return maxId == null ? 0L : maxId;
     }
 
     public List<Person> getAllPersons() {

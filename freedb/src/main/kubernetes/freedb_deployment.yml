@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: freedb-deployment
+  labels:
+    app: freedb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: freedb
+  template:
+    metadata:
+      labels:
+        app: freedb
+    spec:
+      containers:
+      - name: freedb-container
+        image: localhost:5000/quarkus/freedb-jvm
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - mountPath: "/opt/wallet"
+            name: walletmount
+        env:
+          - name: WALLET_FOLDER
+            value: "/opt/wallet"
+          - name: DS_USERNAME
+            value: "wksp_javadb"
+          - name: DS_PASSWORD
+            value: "Oracle12345!"
+      volumes:
+        - name: walletmount
+          persistentVolumeClaim:
+            claimName: walletpvc
+      nodeSelector:
+        nodetype: master
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: walletpvc
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 50Mi
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: walletvolume
+spec:
+  capacity:
+    storage: 50Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadOnlyMany
+  storageClassName: local-storage
+  local:
+    path: /opt/wallet
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: nodetype
+          operator: In
+          values:
+          - master
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: freedb-service
+spec:
+  type: ClusterIP 
+  selector:
+    app: freedb
+  ports:
+  - name: freedb-http
+    protocol: TCP
+    port: 8080
+    targetPort: 8080

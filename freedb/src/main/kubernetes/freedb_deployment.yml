@@ -80,12 +80,11 @@ kind: Service
 metadata:
   name: freedb-service
 spec:
-  type: NodePort
+  type: ClusterIP 
   selector:
     app: freedb
   ports:
   - name: freedb-http
     protocol: TCP
-    nodePort: 30080
     port: 8080
     targetPort: 8080

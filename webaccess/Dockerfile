@@ -1,9 +1,10 @@
-FROM icr.io/appcafe/open-liberty:kernel-slim-java11-openj9-ubi
+FROM arm64v8/ibm-semeru-runtimes:open-17-jdk 
 
-COPY --chown=1001:0 /src/main/liberty/config /config
+COPY --chown=1001:0 . /opt/sources
 
-RUN features.sh
+WORKDIR /opt/sources
 
-COPY --chown=1001:0 target/*.war /config/apps
+ENV PERSONEN_SERVICE_ROOT_URL=http://freedb-service:8080
 
-RUN configure.sh
+ENTRYPOINT ["./mvnw","liberty:dev"]
+

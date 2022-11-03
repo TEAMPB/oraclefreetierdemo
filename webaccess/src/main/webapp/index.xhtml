@@ -1,0 +1,58 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui">
+     <h:head>
+         <h:outputStylesheet name="css/primeflex.css"/>
+     </h:head>
+ 
+     <h:body style="background-color: #EEEEEE">
+
+        <h:form id="mainForm">
+            <p:growl id="growl" showDetail="true" globalOnly="true" />
+            <div class="card">
+                <p:tabView>
+                    <p:ajax event="tabChange" listener="#{personenBean.onTabChange}" update="personTable"/>
+                    <p:tab title="Person anlegen">
+                        <div class="card">
+                            <div class="field grid">
+                                <p:outputLabel for="nameInput" styleClass="col-fixed" style="width:100px" value="Name:"/>
+                                <div class="col">
+                                    <p:inputText id="nameInput" value="#{personenBean.name}" required="true" requiredMessage="Bitte Namen eingeben.">
+                                        <f:validateLength minimum="1"/>
+                                    </p:inputText>
+                                    <p:message for="nameInput" display="text"/>
+                                </div>
+                            </div>
+                            <p:commandButton value="Save" process="nameInput @this" update="mainForm" actionListener="#{personenBean.save()}" icon="pi pi-check"/>
+                        </div>
+                    </p:tab>
+                    <p:tab title="Personenliste" id="personenlisteTab">
+                        <p:ajaxStatus>
+                            <f:facet name="start">
+                                <h:outputText value="Daten werden geladen..." />
+                            </f:facet>
+                            <f:facet name="complete">
+                                <div class="card">
+                                    <p:dataTable id="personTable" var="person" value="#{personenBean.personenListe}">
+                                        <p:column headerText="Id" width="100">
+                                            <h:outputText value="#{person.id}" />
+                                        </p:column>
+
+                                        <p:column headerText="Name">
+                                            <h:outputText value="#{person.name}" />
+                                        </p:column>
+                                    </p:dataTable>
+                                </div>
+                            </f:facet>
+                            <f:facet name="error">
+                                <h:outputText value="Fehler beim Laden der Daten." />
+                            </f:facet>
+                        </p:ajaxStatus>
+                        </p:tab>
+                </p:tabView>
+            </div>
+        </h:form>
+ 
+     </h:body>
+</html>

@@ -6,5 +6,5 @@ WORKDIR /opt/sources
 
 ENV PERSONEN_SERVICE_ROOT_URL=http://freedb-service:8080
 
-ENTRYPOINT ["./mvnw","liberty:dev"]
+ENTRYPOINT ["./mvnw","liberty:dev","-DskipTests=true"]
 

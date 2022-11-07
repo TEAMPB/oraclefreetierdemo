@@ -1,7 +1,6 @@
 package de.teampb.soco.webaccess.beans;
 
 import java.io.StringReader;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,6 +8,8 @@ import java.util.stream.Collectors;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.json.JsonObject;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Client;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -66,17 +67,35 @@ public class PersonenWsClient {
                                 "Erfolg",
                                 "Person '" + newName + "' wurde mit der ID '" + newId + "' angelegt!"));
                 return new PersonPojo(newId, newName);
-            } catch (Exception e) {
-                FacesContext.getCurrentInstance()
-                        .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Fehler!",
-                                "Daten konnten nicht gespeichert werden!"));
-                e.printStackTrace();
+            } 
+            catch (ProcessingException pe) {
+                if(pe.getCause() instanceof BadRequestException){
+                    addErrorFacesMessage("Der eingegebene Name ist nicht erlaubt");
+                }
+                else {
+                    showGeneralErrorMessage(pe);
+                }
+                return null;
+            }
+            catch (Exception e) {
+                showGeneralErrorMessage(e);
                 return null;
             }
         } finally {
             client.close();
         }
+    }
+
+    private void addErrorFacesMessage(String message) {
+        FacesContext.getCurrentInstance()
+        .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                "Fehler!",
+                message));
+    }
+    
+    private void showGeneralErrorMessage(Exception e) {
+        addErrorFacesMessage("Daten konnten nicht gespeichert werden!");
+                e.printStackTrace();
     }
 
     private Client createConsumerClient() {

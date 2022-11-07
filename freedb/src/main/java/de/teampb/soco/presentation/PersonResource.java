@@ -9,7 +9,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import de.teampb.soco.entity.Person;
 import de.teampb.soco.service.PersonService;
@@ -35,10 +36,24 @@ public class PersonResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Person createPerson(Person body){
+    public Response createPerson(Person body){
+        
+        if(body == null) {
+            return createErrorResponse();
+        }
         String name = body.getName();
         Person person = personService.createPerson(name);
-        return person;
+
+        if(person == null){
+            return createErrorResponse();
+        }
+
+        return Response.ok().entity(person).build();
+    }
+
+
+    private Response createErrorResponse() {
+        return Response.status(Status.BAD_REQUEST).build();
     }
 
 }

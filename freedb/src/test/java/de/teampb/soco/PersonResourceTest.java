@@ -9,10 +9,10 @@ import javax.json.Json;
 import javax.json.JsonObject;
 
 @QuarkusTest
-public class GreetingResourceTest {
+public class PersonResourceTest {
 
     @Test
-    public void testPersonEinzelladenGeht() {
+    public void testPersonSingleQuery() {
         given()
           .when().get("/person/1")
           .then()
@@ -20,7 +20,7 @@ public class GreetingResourceTest {
     }
 
     @Test
-    public void testPersonenLadenGeht() {
+    public void testPersonGetAll() {
         given()
           .when().get("/person")
           .then()
@@ -28,7 +28,7 @@ public class GreetingResourceTest {
     }
 
     @Test
-    public void testPersonenSpeichernGeht() {
+    public void testPersonSave() {
 
         JsonObject build = Json.createObjectBuilder().add("name", "Johnny").build();
 
@@ -36,6 +36,17 @@ public class GreetingResourceTest {
           .when().post("/person")
           .then()
              .statusCode(200);
+    }
+
+    @Test
+    public void testPersonSaveBlacklisted() {
+
+        JsonObject build = Json.createObjectBuilder().add("name", "Doe").build();
+
+        given().body(build.toString()).header("Content-Type", "application/json")
+          .when().post("/person")
+          .then()
+             .statusCode(400);
     }
 
 }
